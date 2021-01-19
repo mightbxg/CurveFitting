@@ -1,3 +1,4 @@
+#include "curve.h"
 #include "white_board.h"
 #include <ceres/ceres.h>
 #include <iostream>
@@ -12,9 +13,9 @@ struct ExponentialResidual {
     {
     }
     template <typename T>
-    bool operator()(const T* const m, const T* const c, const T* const d, T* residual) const
+    bool operator()(const T* const p, T* residual) const
     {
-        residual[0] = y_ - exp(m[0] * x_ + c[0]) - d[0];
+        residual[0] = y_ - exp(p[0] * x_ + p[1]) - p[2];
         return true;
     }
 
@@ -23,14 +24,14 @@ private:
     const double y_;
 };
 
-void fitCurve(const vector<Point>& pts, double& p1, double& p2, double& p3)
+void fitCurve(const vector<Point>& pts, double p[3])
 {
     using namespace ceres;
     Problem problem;
     for (const auto& pt : pts) {
-        CostFunction* cost_function = new AutoDiffCostFunction<ExponentialResidual, 1, 1, 1, 1>(
+        CostFunction* cost_function = new AutoDiffCostFunction<ExponentialResidual, 1, 3>(
             new ExponentialResidual(pt.x, pt.y));
-        problem.AddResidualBlock(cost_function, nullptr, { &p1, &p2, &p3 });
+        problem.AddResidualBlock(cost_function, nullptr, p);
     }
 
     Solver::Options options;
@@ -40,16 +41,16 @@ void fitCurve(const vector<Point>& pts, double& p1, double& p2, double& p3)
     Solver::Summary summary;
     Solve(options, &problem, &summary);
     cout << summary.BriefReport() << endl;
-    cout << "curve params: " << p1 << " " << p2 << " " << p3 << endl;
+    cout << "curve params: " << p[0] << " " << p[1] << " " << p[2] << endl;
 }
 
 int main(int argc, char* argv[])
 {
     WhiteBoard wb("white_board", 800, 600);
 
-    double p1 = 0.01, p2 = 0, p3 = 0;
+    double p[3] = { 0.01, 0, 0 };
     auto getY = [&](double x) -> double {
-        return exp(p1 * x + p2) + p3;
+        return exp(p[0] * x + p[1]) + p[2];
     };
     auto draw = [&](cv::Mat& img) {
         constexpr double y_thresh = 1e5;
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
         else if (ckey == 'c')
             wb.clear();
         else if (ckey == 'f')
-            fitCurve(wb.pts(), p1, p2, p3);
+            fitCurve(wb.pts(), p);
     }
     return 0;
 }
