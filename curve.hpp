@@ -60,7 +60,7 @@ public:
         using namespace ceres;
         Problem problem;
         for (const auto& pt : pts)
-            problem.AddResidualBlock(createCostFunction(pt.x, pt.y), nullptr, p);
+            problem.AddResidualBlock(createCostFunction(pt.x, pt.y), new CauchyLoss(0.5), p);
         Solver::Options options;
         options.max_num_iterations = 100;
         options.linear_solver_type = ceres::DENSE_QR;
