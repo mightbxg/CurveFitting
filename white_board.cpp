@@ -24,6 +24,7 @@ Mat WhiteBoard::image() const
     Mat image = background_.clone();
     for (const auto& pt : pts_)
         circle(image, pt, 2, { 0, 0, 255 }, cv::FILLED);
+    additional_drawing_(image);
     return image;
 }
 
