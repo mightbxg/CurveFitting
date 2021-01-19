@@ -89,6 +89,16 @@ protected:
     cv::Scalar color_draw { 255, 0, 0 };
 };
 
+class Line : public Curve<2, Line> {
+public:
+    using Curve::Curve;
+    template <typename T>
+    static T getYImpl(const T* p, T x)
+    {
+        return p[0] * x + p[1];
+    }
+};
+
 class ExpCurve : public Curve<3, ExpCurve> {
 public:
     using Curve::Curve;

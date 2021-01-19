@@ -9,8 +9,9 @@ using namespace cv;
 int main(int argc, char* argv[])
 {
     WhiteBoard wb("white_board", 800, 600);
-    ExpCurve c(0.01, 0.0, 0.0);
-    wb.setupAdditionalDrawing(bind(&ExpCurve::draw, &c, placeholders::_1));
+    using CurveType = Line;
+    CurveType c(1.0, 0.0);
+    wb.setupAdditionalDrawing(bind(&CurveType::draw, &c, placeholders::_1));
     wb.show();
 
     while (true) {
