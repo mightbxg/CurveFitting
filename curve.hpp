@@ -60,7 +60,7 @@ public:
         using namespace ceres;
         Problem problem;
         for (const auto& pt : pts)
-            problem.AddResidualBlock(createCostFunction(pt.x, pt.y), new CauchyLoss(0.5), p);
+            problem.AddResidualBlock(createCostFunction(pt.x, pt.y), new CauchyLoss(0.8), p);
         Solver::Options options;
         options.max_num_iterations = 100;
         options.linear_solver_type = ceres::DENSE_QR;
@@ -106,6 +106,16 @@ public:
     static T getYImpl(const T* p, T x)
     {
         return ceres::exp(x * p[0] + p[1]) + p[2];
+    }
+};
+
+class BellCurve : public Curve<3, BellCurve> {
+public:
+    using Curve::Curve;
+    template <typename T>
+    static T getYImpl(const T* p, T x)
+    {
+        return p[0] * ceres::exp(-(x - p[1]) * (x - p[1]) / (T(2.) * p[2] * p[2]));
     }
 };
 

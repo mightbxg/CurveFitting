@@ -9,8 +9,8 @@ using namespace cv;
 int main(int argc, char* argv[])
 {
     WhiteBoard wb("white_board", 800, 600);
-    using CurveType = Line;
-    CurveType c(1.0, 0.0);
+    using CurveType = BellCurve;
+    CurveType c(300.0, 400.0, 100.0);
     wb.setupAdditionalDrawing(bind(&CurveType::draw, &c, placeholders::_1));
     wb.show();
 
